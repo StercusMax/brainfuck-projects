@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <errno.h>
+
 
 #define ARRAYLENGTH 30000
-#define STACKSIZE 100000
+#define STACKSIZE 10000
 
 char * code = NULL;
 
@@ -18,23 +20,23 @@ void intHandler(int dummy) {
 
 int main(int argc, char **argv)
 {
-    if (argc == 1) {printf("Need a file to interpret\n"); return 0;} 
+    if (argc == 1) {perror("Need a file to interpret\n"); return 0;} 
     else if (argc > 2) {printf("You need to use ./bfi file\n"); return 0;}
     
     signal(SIGINT, intHandler);
     size_t length;
-    FILE * f = fopen(argv[1], "rb");
-    if (!f) {printf("Couldn't open file %s\n", argv[1]); return 0;}
+    FILE * f = fopen(argv[1], "r");
+    if (!f) {fprintf(stderr, "Couldn't open file %s\n", argv[1]); return 0;}
 
     fseek(f, 0, SEEK_END);
     length = ftell (f);
     fseek(f, 0, SEEK_SET);
     code = malloc(length + 1);
-    if (!code) {fclose(f); printf("Error when allocating memory to get the text of the file\n"); return 0;}
+    if (!code) {fclose(f); perror("Error when allocating memory to get the text of the file\n"); return 0;}
     fread(code, 1, length, f);
     fclose(f);
     code[length] = '\0';
-    if (verifyloops() == -1) {free(code); printf("Not closed/opened loops\n"); return 0;};
+    if (verifyloops() == -1) {free(code); perror("Not closed/opened loops\n"); return 0;};
     execute();
     
     free(code);
