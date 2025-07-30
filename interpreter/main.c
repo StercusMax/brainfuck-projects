@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     fread(code, 1, length, f);
     fclose(f);
     code[length] = '\0';
-    if (verifyloops() == -1) {free(code); perror("Not closed/opened loops\n"); return -5;};
+    if (verifyloops()) {free(code); perror("Not closed/opened loops\n"); return -5;};
     execute();
     
     free(code);
