@@ -20,23 +20,23 @@ void intHandler(int dummy) {
 
 int main(int argc, char **argv)
 {
-    if (argc == 1) {perror("Need a file to interpret\n"); return 0;} 
-    else if (argc > 2) {printf("You need to use ./bfi file\n"); return 0;}
+    if (argc == 1) {perror("Need a file to interpret\n"); return -1;} 
+    else if (argc > 2) {printf("You need to use ./bfi file\n"); return -2;}
     
     signal(SIGINT, intHandler);
     size_t length;
     FILE * f = fopen(argv[1], "r");
-    if (!f) {fprintf(stderr, "Couldn't open file %s\n", argv[1]); return 0;}
+    if (!f) {fprintf(stderr, "Couldn't open file %s\n", argv[1]); return -3;}
 
     fseek(f, 0, SEEK_END);
     length = ftell (f);
     fseek(f, 0, SEEK_SET);
     code = malloc(length + 1);
-    if (!code) {fclose(f); perror("Error when allocating memory to get the text of the file\n"); return 0;}
+    if (!code) {fclose(f); perror("Error when allocating memory to get the text of the file\n"); return -4;}
     fread(code, 1, length, f);
     fclose(f);
     code[length] = '\0';
-    if (verifyloops() == -1) {free(code); perror("Not closed/opened loops\n"); return 0;};
+    if (verifyloops() == -1) {free(code); perror("Not closed/opened loops\n"); return -5;};
     execute();
     
     free(code);
